@@ -1,0 +1,608 @@
+connect - to connect to database with username and pass.
+cl src - clear screen
+commit; - to make the changes permanently store in database
+exit - to exit console
+
+1)
+CREATE TABLE T(
+	a number(1) PRIMARY KEY,
+	b char(1)
+	);
+	
+		OR
+
+create table T ( a number(1), b char(1), primary key(a,b) );
+// composite primary keys.
+	
+create table T ( a number(1), b char(1), constraint T_pk primary key(a) );
+// T_pk is the variable name req if we want to change the primary key later
+
+create table T ( a number(1), b char(1)
+
+2) desc T => to show the structure of the table
+SQL> desc T
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ A                                         NOT NULL NUMBER(1)
+ B                                                  CHAR(1)
+ 
+ 3) 
+ drop table T purge;
+ 
+ Constraints: see notes
+ 
+ Inserting records in a Table: [falls uder data manipulation language - DML]
+ 
+ insert into T values(1, 'a');
+ insert into T values(2, 'a');
+ 
+Console:
+ SQL> insert into T values(1, 'a');
+
+1 row created.
+
+SQL> insert into T values(1, 'a');
+insert into T values(1, 'a')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (SYSTEM.T_PK) violated
+T_PK constraint
+
+> Display table:
+
+SQL> select * from T;
+
+         A B
+---------- -
+         1 a
+
+create table Product ( prodid number(5) primary key, 
+	prodname varchar(20), unitprice number(4),
+	discount number(3,1)
+	);
+	
+ INSERT INTO Product Values(2, 'Ruler', 30, 3.05);
+ 
+ SELECT * FROM Product;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         1 Notebook                    120        5.1
+         2 Pen                          20          0
+         3 Ruler                        30        3.1
+         4 Pencil                       10        2.1
+ 
+ SELECT * FROM Product ORDER BY discount;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         2 Pen                          20          0
+         4 Pencil                       10        2.1
+         3 Ruler                        30        3.1
+         1 Notebook                    120        5.1
+		 
+NOTE: ORDER BY - by default ascending
+	DESC - descending
+	
+SQL> SELECT * FROM Product ORDER BY discount desc ;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         1 Notebook                    120        5.1
+         3 Ruler                        30        3.1
+         4 Pencil                       10        2.1
+         2 Pen                          20          0
+		 
+		 
+Order by column number
+
+SQL> SELECT * FROM Product ORDER BY 3;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         4 Pencil                       10        2.1
+         2 Pen                          20          0
+         3 Ruler                        30        3.1
+         1 Notebook                    120        5.1
+		 
+display the details of all the products in the ascending order of discount;
+
+SELECT * FROM Product where proid>2 order by 1 desc;
+
+if an SQL Statement consists of multiple clauses and of the clauses is ORDER BY that must be the last one.
+i.e, ordering must be done at last.
+
+SQL> SELECT * FROM Product where prodid>2 order by 1 desc;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         4 Pencil                       10        2.1
+         3 Ruler                        30        3.1
+
+
+Display the ids and names of all the products where uniT price lieS between 50-200.
+
+SELECT * FROM Product where unitprice>=500 and unitprice<=1000;
+
+SQL> SELECT * FROM Product where unitprice>=50 and unitprice<=200;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         1 Notebook                    120        5.1
+		 
+		 
+SQL> SELECT * FROM Product where unitprice between 10 and 100;
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         2 Pen                          20          0
+         3 Ruler                        30        3.1
+         4 Pencil                       10        2.1
+		 
+SELECT * FROM Product where unitprice=10 or unitprice=120;
+SELECT * FROM Product where unitprice in (1, 100); // SAME AS ABOVE
+
+SQL> SELECT * FROM Product where unitprice in (1, 100);
+
+no rows selected
+
+SQL> SELECT * FROM Product where unitprice in (10, 120);
+
+    PRODID PRODNAME              UNITPRICE   DISCOUNT
+---------- -------------------- ---------- ----------
+         1 Notebook                    120        5.1
+         4 Pencil                       10        2.1
+		 
+
+
+
+*************************************************************************************************
+										DD - 18.02.23
+*************************************************************************************************
+MODIFYING TABLES:
+
+1.Adding new attribute:  ALTER TABLE T add <column-name> <data-type>;
+
+2.Droping attribute:  ALTER TABLE T DROP COLUMN c;
+
+3.Removing primary key constraint [Entity-Integrity constraint] : drop constraint t_pk; [where t_pk is the identifier/constraint name]
+
+4.Adding constraint primary key: 
+	~ add constraint primary key(b);
+	~ add constraint t_pk primary key(b);
+	
+	This statement will satisfy if:
+		a) when the table is empty.
+		b) not empty- if b has duplicate elements then it cannot be made primary key.
+		i.e, new primary key constraint can be assigned if the attribute has unique and not null element;
+		
+5. SIZE modification:
+	initial size of attribute a is 4.
+	modifying: alter table T modify  a number(2); 
+	but depends in records if the max size of a record inserted is 2 then no problem. But if any of record size is more than 2 then this modification is not allowed.
+	
+6. Changing data type:
+	
+	alter table T modify a varchar(4);
+	
+7. Assigning unique key constraint [ allows null ]:
+	
+	ALTER table T modify t_uniq unique;
+	
+# Modifying Data Integrity Constraints (also called a check constraint):
+
+8. check	
+	create TABLE T (a, b, c, constraint t_pk primary key(c), constraint t_ck check(a>=10),
+	constraint t_b_ck check( b in ('AB', 'CD', 'EF', 'GH') ) 
+	);
+	
+	~ 'a' column cannot have values less than 10
+	~ ALL the tuple in table T for b, values will be among this - ('AB', 'CD', 'EF', 'GH')
+
+9. default
+	a number(5) default 1000; 
+	~ if no value is inserted for record col a then default value will be 1000, its basically avoiding null entry in the table;
+
+*******************************************************
+
+% - wildcard character which can be any no. of character
+_ - another wildcard that represents only one character.
+
+Updating a record value from a tuple:
+	update T set b = 'xy' where a = 13; 
+	~ for tuple where a is 13, its b part value becomes 'xy'
+	
+	update T set b ='xy'; all b column will become 'xy'
+	
+	update T set b= 'xy', a = a+10; where a =13;
+	~ a value changes and b value changes
+	
+Deleting tuples from a table:
+	delete from T; all tuples deleted
+	~ DML 
+	
+	delete from T where a > 20;
+	
+	truncate table T; - removing all tuples.
+	
+NOTE: TRUNCATE and DELETE both results same, but DELETE query removes each tuple one by one, while TRUNCATE drops the entire table and re-creates a new table with same name and entites. This results in faster deletion in case of TRUNCATE query.
+
+Restoring table:	
+	flashback table T to before drop; // to restore table structure from recycle bin.
+	
+Date:
+	ALTER TABLE T add c date;
+	all c column is of date type is NULL;
+	update T set c='09-NOV-2003' where a =11;
+	
+	
+Class work:
+
+SQL> create table Employee (empno number(2), 
+	empname varchar(20), 
+	salary number(7, 2), 
+	dob date, doj date, 
+	department varchar(20), 
+	location varchar(20),
+	constraint emp_ck check(salary >=20000),
+	constraint emp_pk primary key(empno)
+);
+
+INSERT into Employee values (1, 'AB', 25000, '14-FEB-2003', '02-JAN-23', 'MARKETING', 'KOLKATA');
+INSERT into Employee values (2, 'CD', 28000, '12-MAR-2002', '03-JAN-23', 'FUNCTIONAL', 'HYDERABAD');
+INSERT into Employee values (3, 'EF', 32000, '20-JAN-2003', '05-JAN-23', 'SALES', 'PUNE');
+INSERT into Employee values (4, 'GH', 70000, '15-NOV-2003', '10-JAN-23', 'TECHNICAL', 'BHUBANESWAR');
+INSERT into Employee values (5, 'IJ', 50000, '18-DEC-2002', '10-JAN-23', 'FUNCTIONAL', 'HYDERABAD');
+INSERT into Employee values (6, 'SD', 60000, '18-NOV-2001', '10-JAN-23', 'HR', 'KOLKATA');
+
+set linesize 150    // to set the line size of SQL plus.
+
+SQL> select * from Employee;
+
+     EMPNO EMPNAME                  SALARY DOB       DOJ       DEPARTMENT           LOCATION
+---------- -------------------- ---------- --------- --------- -------------------- --------------------
+         1 AB                        25000 14-FEB-03 02-JAN-23 MARKETING            KOLKATA
+         2 CD                        28000 12-MAR-02 03-JAN-23 FUNCTIONAL           HYDERABAD
+         3 EF                        32000 20-JAN-03 05-JAN-23 SALES                PUNE
+         4 GH                        70000 15-NOV-03 10-JAN-23 TECHNICAL            BHUBERNESHWAR
+         5 IJ                        50000 18-DEC-02 10-JAN-23 FUNCTIONAL           Hyderabad
+         6 SD                        60000 18-NOV-01 10-JAN-23 HR                   KOLKATA
+
+Questions:
+1. Display the details of all the employees for working in technical and functional departments.
+Ans:select * from Employee where department=ANY('FUNCTIONAL', 'TECHNICAL');
+
+     EMPNO EMPNAME                  SALARY DOB       DOJ       DEPARTMENT           LOCATION
+---------- -------------------- ---------- --------- --------- -------------------- --------------------
+         2 CD                        28000 12-MAR-02 03-JAN-23 FUNCTIONAL           HYDERABAD
+         4 GH                        70000 15-NOV-03 10-JAN-23 TECHNICAL            BHUBERNESHWAR
+         5 IJ                        50000 18-DEC-02 10-JAN-23 FUNCTIONAL           Hyderabad
+		 
+2. display the numbers and names of all the employees for working in bhu and working salary more than 80000.
+select * from Emplaoyee where location='BHUBANESWAR' and salary>80000;
+3. increase the salary of all the employees by 10%.
+4. remove the records of the employees whose names begins with 'S'.
+
+***********************************************************************
+				DD 25-02-23
+***********************************************************************
+mathematical input is independent of table contents
+~ select 2+3 from dual;
+SQL> select 2+3 from dual;
+
+       2+3
+----------
+         5
+
+select sysdate from dual;  // shows system date in DD-MON-YY format
+
+NOTE: we have to execute a query to show this sysdate and mathematical operations with help of any referred table.
+
+'dual' is default table in oracle database.
+--------------------------------------------------------------------------
+DATE display & formatting
+
+SQL> select sysdate TODAY from dual;
+
+TODAY
+------------------
+25-FEB-23
+
+// here the output column name consists of single word
+// for renaming with multiple words we need to put words in double quote.
+
+SQL> select sysdate "TODAY's DATE is:" from dual;
+
+TODAY's DATE is:
+------------------
+25-FEB-23
+
+select to_char(sysdate, 'dd/mm/yyyy') from dual;
+// changing the format of date with the help of to_char(sysdate, '<format>')
+
+select to_char(sysdate, 'dd/mm/yyyy') TODAY from dual;
+
+SQL> select to_char(sysdate, 'MON/dd/yyyy') from dual;
+
+SQL> select 'Today is ' || to_char(sysdate, 'FMddth MONTH, Yyyy') from dual;
+
+'TODAYIS'||TO_CHAR(SYSDATE,'FMDDTHMONTH,YYYY')
+--------------------------------------------------------
+Today is 25th FEBRUARY, 2023
+--------------------
+FEB/25/2023
+
+SQL> select to_char(sysdate, 'MON yyyy') from dual;
+
+TO_CHAR(SYSDATE,'
+-----------------
+FEB 2023
+
+
+SQL> select to_char(sysdate, 'DY') from dual;
+
+TO_CHAR(SYSD
+------------
+SAT
+
+SQL> select to_char(sysdate, 'dy') from dual;
+
+TO_CHAR(SYSD
+------------
+sat
+
+SQL> select to_char(sysdate, 'Day') from dual;
+
+TO_CHAR(SYSDATE,'DAY')
+------------------------------------
+Saturday
+
+SQL> select to_char(sysdate, 'YEAR') from dual;
+
+TO_CHAR(SYSDATE,'YEAR')
+------------------------------------------
+TWENTY TWENTY-THREE
+
+# displaying months in roman numbers.
+SQL> select to_char(sysdate, 'rm') from dual;
+
+TO_C
+----
+ii
+
+
+# ddsp - date spelling
+SQL> select to_char(sysdate, 'ddsp') from dual;
+
+TO_CHAR(SYSD
+------------
+twenty-five
+
+
+SQL> select to_char(sysdate, 'ddspth MON Yyyy') from dual;
+
+TO_CHAR(SYSDATE,'DDSPTHMONYYYY')
+--------------------------------
+twenty-fifth FEB 2023
+
+SQL> select to_char(sysdate, 'ddth MON Yyyy') from dual;
+
+TO_CHAR(SYSDATE,'DDTHM
+----------------------
+25th FEB 2023
+
+
+SQL> select to_char(sysdate, 'ddth MONTH, Yyyy') from dual;
+
+TO_CHAR(SYSDATE,'DDTHMONTH,YYYY')
+-----------------------------------------------
+25th FEBRUARY , 2023
+
+SQL> select to_char(sysdate, 'FMddth MONTH, Yyyy') from dual;
+
+fm is used to remove extra spaces. [compare above and below query results]
+TO_CHAR(SYSDATE,'FMDDTHMONTH,YYYY')
+-----------------------------------------------
+25th FEBRUARY, 2023
+
+double pipe || is used for concatenating.
+SQL> select 'Today is ' || to_char(sysdate, 'FMddth MONTH, Yyyy') from dual;
+
+'TODAYIS'||TO_CHAR(SYSDATE,'FMDDTHMONTH,YYYY')
+--------------------------------------------------------
+Today is 25th FEBRUARY, 2023
+
+*********************************
+	## TIME DISPLAY
+*********************************
+SQL> select to_char(sysdate, 'HH:MI:SS pm') from dual;
+
+TO_CHAR(SYS
+-----------
+10:43:42 am
+
+Server time - sysdate
+Client time - currenttime
+
+SQL> select to_char(sysdate, 'HH24:MI:SS pm') from dual;
+// by defualt it is 12 hour format, by making it HH24 it becomes 24 hour format.
+
+MATHEMATICAL FUNCTIONS:
+
+SQL> select sqrt(81) from dual;
+
+  SQRT(81)
+----------
+         9
+
+SQL> select sqrt(81.5) from dual;
+
+SQRT(81.5)
+----------
+9.02773504
+
+
+SQL> select mod(36, 7) from dual;
+
+ MOD(36,7)
+----------
+         1
+
+2 decimal places
+SQL> select round(97.8095, 2) from dual;
+
+ROUND(97.8095,2)
+----------------
+           97.81
+
+SQL> select trunc(97.8095, 2) from dual;
+
+TRUNC(97.8095,2)
+----------------
+            97.8
+
+SQL> select trunc(78.0519, 3) from dual;
+
+TRUNC(78.0519,3)
+----------------
+          78.051
+
+## CASE CONVERSION:
+
+SQL> select upper('sql plus') from dual;
+
+UPPER('S
+--------
+SQL PLUS
+
+SQL> select initcap('sql plus') from dual;
+
+INITCAP(
+--------
+Sql Plus
+
+SQL> select initcap('MACHINE LEARNING') from dual;
+
+INITCAP('MACHINE
+----------------
+Machine Learning
+
+
+AGGREGRATE FUNCTIONS:
+
+1. count():
+	select count(*) from employee; // shows no. of records(tuples) presnt in the enitre table.
+	select count(*) from employee where <condition>;
+	
+2. max():
+	select max(salary) from employee; // comparing all salaries and displays maximum salary
+
+3. min():
+	select min(salary) from employee;
+
+4. sum(): total of all the records in that column
+	select sum(salary) from employee; // gives total of all salary.
+
+5. avg():
+	select avg(salary) from employee;
+
+Q. a) Display the names of all the employees who r getting the max salary.
+   b) Display names of all employees whose salries are more than the avg of all the salaries.
+
+	Ans a: select empname from Employee where salary = (select max(salary) from employee);
+		salary = max(salary) will be errorneous as every aggregrate will be seperately evaluated.
+
+	Ans b: select empname from Employee where salary > (select avg(salary) from employee);
+
+SQL> select * from Employee;
+
+     EMPNO EMPNAME                  SALARY DOB                DOJ                DEPARTMENT           LOCATION
+---------- -------------------- ---------- ------------------ ------------------ -------------------- --------------------
+         1 AB                        25000 14-FEB-03          02-JAN-23          MARKETING            KOLKATA
+         2 CD                        28000 12-MAR-02          03-JAN-23          FUNCTIONAL           HYDERABAD
+         3 EF                        32000 20-JAN-03          05-JAN-23          SALES                PUNE
+         4 GH                        70000 15-NOV-03          10-JAN-23          TECHNICAL            BHUBANESWAR
+         5 IJ                        50000 18-DEC-02          10-JAN-23          FUNCTIONAL           HYDERABAD
+         6 SD                        60000 18-NOV-01          10-JAN-23          HR                   KOLKATA
+
+6 rows selected.
+
+SQL> select empname from Employee where salary = (select max(salary) from Employee);
+
+EMPNAME
+--------------------
+GH
+
+SQL> select empname from Employee where salary > (select avg(salary) from Employee);
+
+EMPNAME
+--------------------
+GH
+IJ
+SD
+
+SQL> select avg(salary) from Employee;
+
+AVG(SALARY)
+-----------
+ 44166.6667
+
+select count(*) from employee;
+SQL> select count(*) from employee;
+
+  COUNT(*)
+----------
+         6
+
+select count(*) from employee where upper(location) = 'KOLKATA';
+
+SUBSTRING:
+
+select substr('computer science', 5) from dual;
+select substr('computer science', 4,7) from dual; // extracting seven characters from position 4.
+	       123456789----
+SQL> select substr('computer science', 4,7) from dual;
+
+SUBSTR(
+-------
+puter s
+
+INSTR : finds position of string
+select instr('computer science', 'p') from dual;
+
+
+SQL> select instr('computer science', 'e') from dual;
+
+INSTR('COMPUTERSCIENCE','E')
+----------------------------
+                           7
+// finding string position after a given position
+SQL> select instr('computer science', 'e', 8) from dual;
+
+INSTR('COMPUTERSCIENCE','E',8)
+------------------------------
+                            13
+
+LENGTH:
+	select length('Hello') from dual;
+SQL> select length('Hello') from dual;
+
+LENGTH('HELLO')
+---------------
+              5
+
+select substr('computer science', instr('computer science', ' ') from dual; // extracting character after space
+SQL> select substr('computer science', instr('computer science', ' ') ) from dual;
+
+SUBSTR('
+--------
+ science
+
+# To omit space simply +1:
+SQL> select substr('computer science', instr('computer science', ' ')+1 ) from dual;
+
+SUBSTR(
+-------
+science
+
+create table TEST(a number(2), b varchar(10) );
