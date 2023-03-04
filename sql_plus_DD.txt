@@ -606,3 +606,82 @@ SUBSTR(
 science
 
 create table TEST(a number(2), b varchar(10) );
+
+
+**************************************************************************************************
+                                         AA - 03.03.23
+**************************************************************************************************
+GROUP FUNCTIONS:
+
+
+To find minimun salary of a clerk
+SELECT min(sal) FROM emp WHERE job = 'clerk';
+
+CREATE TABLE Empl ( emp_no, emp_name, sal, commission, doj, job, dept_no);
+
+Dept (dept_no, dept_name, 
+
+EX 1: To calculate the avg salary for each different job.
+
+SELECT job, avg(sal) FROM emp GROUP BY job; // corresponding to job type we are making groups
+
+job type     sal[avg]
+j1              xx
+j2              xx
+j3              xx
+j4              xx
+
+Ex 2: To display the average monthly salary bill for each job type within a department (Groups within groups).
+SELECT deptno, job, avg(sal) FROM emp GROUP BY deptno,job;
+
+---------------------------------------------------------------------------------------------------
+
+THE HAVING CALUSE:
+> Is used if we wish to specify which groups are to be displayed i.e., restrict the groups that you return on the basis of aggregrate information.
+
+EX 3: Display avg sal for all departments employing more than 3 people.
+SELECT dept_no, avg(sal) FROM emp GROUP BY dept_no HAVING count(*) > 3;
+
+
+SUB QUERIES :
+
+SELECT c1, c2, ... FROM <table-name> WHERE C1 = ( SELECT C FROM <Table-name> WHERE <condition>)
+
+
+EX: to find the employee who have the same job as 'Blake'
+SELECT emp_mae, job FROM emp where job = (SELECT job from emp where emp_name = 'Blake');
+
+EX: to find the employee who gets lowest salary in their departments
+SELECT ename, sal, dept_no, FROM emp WHERE sal in ( SELECT min(sal) from emp group by dept_no); // not always correct
+
+SELECT ename, sal, dept_no, FROM emp WHERE (sal, dept_no) in ( SELECT min(sal), DEPT_NO from emp group by dept_no); // in for multiple values
+
+EX: To display the departments who have an average salary bill greater than dept 30.
+SELECT deptno, abg(sal) FROM emp GROUP BY dept_no hHAVING avg(sal) > ( select avg(sal) from emp where dept_no = 30);
+
+EX: find the job with highest abg salary.
+SELECT job, abg(sal) FROM emp GROUP BY job HAVING avg(sal) = (SELECT max(avg(sal)) from emp GROUP BY job);
+
+---------------------------------------------------------------------------------------------------
+SET OPERATIONS:
+
+UNION : to return the distinct rows by either of the queries.
+
+e.g. SELECT job FROM emp WHERE dept_no = 10 UNION SELECT job FROM emp WHERE dept_no = 20
+// To keep duplicates we can put UNION ALL in the query.
+
+EX: To return rows retrieved by first query but not second query.
+SELECT job FROM emp WHERE dept_no = 10 MINUS SELECT job FROM emp WHERE dept_no = 20
+
+--------------------------------------------------------------------------------------------------
+CORELATED SUBQUERY:
+1. get candidate row (fetched by the outer query)
+2. execute inner query using candidate rows values
+3. use values from inner query to qualify/ disqualify candidate
+4. repeat until no candidate rows remain
+
+To find the employees who earns a salary greater than the average salary for their departments.
+
+SELECT emp_name, emp_no, sal, deptno FROM emp e WHERE sal > (SELECT avg(sal) FROM emp WHERE deptno=e.deptno) ORDER BY deptno;
+
+Outer query is first executed where we do the renaming.
