@@ -1,0 +1,51 @@
+Create the following table:
+Customer(cust_number, cust_name, cust_city, amount_purchased)
+In the above table, cust_number is the primary key and every customer number must begin with CUST.
+
+Insert sufficient number of records to execute the following queries.
+1. Find the number of customers who have purchased products worth INR 10000 and above.
+2. Find the number of customers coming from each city.
+3. Find the city from which at least 3 customers are coming.
+4. Delete the details of all the customers who have purchased products worth INR 100 or less.
+5. Change the city of the following customers to Asansol: 
+    CUST102 and CUST105
+
+------------------------------------------------------------------------------------------
+
+CREATE TABLE Customer1(cust_number VARCHAR(6), cust_name VARCHAR(20), cust_city VARCHAR(20), amount_purchased NUMBER(8,2), constraint CUST_PK PRIMARY KEY(cust_number) );
+
+ALTER TABLE CUSTOMER1 ADD CONSTRAINT cust_cn check( CUST_NUMBER like 'CUST%');
+
+INSERT INTO Customer1 VALUES( 'CUST01', 'BILL GATES', 'TEXAS', 75000.57);
+INSERT INTO Customer1 VALUES( 'CUST015', 'ELON MUSK', 'CALIFORNIA', 6340.89);
+INSERT INTO Customer1 VALUES( 'CUST106', 'MARK ZUKERBERG', 'LAS VEGAS', 15000.80);
+INSERT INTO Customer1 VALUES( 'CUST102', 'LARRY PAGE', 'NEW YORK', 5600.55);
+INSERT INTO Customer1 VALUES( 'CUST103', 'SUNDAR PICHAI', 'NEW YORK', 25600.55);
+INSERT INTO Customer1 VALUES( 'CUST104', 'WARREN BUFFET', 'TEXAS', 38600.55);
+INSERT INTO Customer1 VALUES( 'CUST105', 'STEVE JOBS', 'CALIFORNIA', 89020.89);
+INSERT INTO Customer1 VALUES( 'CUST107', 'TIM COOK', 'CALIFORNIA', 77050.88);
+INSERT INTO Customer1 VALUES( 'CUST117', 'MICHAEL', 'LONDON', 89);
+INSERT INTO Customer1 VALUES( 'CUST110', 'JOHN', 'INDIA', 50);
+
+CUST_NU CUST_NAME            CUST_CITY            AMOUNT_PURCHASED
+------- -------------------- -------------------- ----------------
+CUST01  BILL GATES           TEXAS                        75000.57
+CUST015 ELON MUSK            CALIFORNIA                    6340.89
+CUST106 MARK ZUKERBERG       LAS VEGAS                     15000.8
+CUST102 LARRY PAGE           NEW YORK                      5600.55
+CUST103 SUNDAR PICHAI        NEW YORK                     25600.55
+CUST104 WARREN BUFFET        TEXAS                        38600.55
+CUST105 STEVE JOBS           CALIFORNIA                   89020.89
+CUST107 TIM COOK             CALIFORNIA                   77050.88
+CUST117 MICHAEL              LONDON                             89
+CUST110 JOHN                 INDIA                              50
+
+1. SELECT count(*) from customer1 where amount_purchased >= 10000;
+
+2. SELECT cust_city,count(*) FROM Customer1 GROUP BY cust_city;
+
+3. SELECT cust_city,count(*) FROM Customer1 GROUP BY cust_city HAVING count(*) >= 3;
+
+4. DELETE FROM CUSTOMER1 WHERE AMOUNT_PURCHASED <= 100;
+
+5. UPDATE CUSTOMER1 SET CUST_CITY = 'ASANSOL' WHERE CUST_NUMBER IN ('CUST102', 'CUST105');
